@@ -1,0 +1,165 @@
+<div class="max-w-screen-lg w-full mx-auto">
+    {% if user_task.is_completed %}
+        <div class="grid gap-4">
+            <div class="flex justify-between">
+                <div class="flex items-center gap-2 bg-secondary-100 font-medium py-2 px-4 rounded-xl">
+                    <svg class="w-5 h-5 text-amber-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
+                    </svg>
+
+                    <span>{{ user_task.task.rating }}/{{ user_task.rating }} балл</span>
+                </div>
+
+                <div class="flex gap-1 items-center font-medium px-4 py-2 rounded-xl bg-primary-100 text-primary-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-circle-check-icon lucide-circle-check">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="m9 12 2 2 4-4" />
+                    </svg>
+                    <span>Орындалды</span>
+                </div>
+            </div>
+            {% for tg in user_text_gaps %}
+                <div class="grid gap-4 p-6 border border-border-200 rounded-xl shadow">
+                    <!-- 1. Prompt (үш нүктелі сөйлем) -->
+                    <div id="prompt-{{ tg.id }}" class="hidden">
+                        {{ tg.text_gap.prompt }}
+                    </div>
+
+                    <!-- 2. Answer (қолданушы жауабы) -->
+                    <div id="answer-{{ tg.id }}" class="hidden">
+                        {{ tg.answer }}
+                    </div>
+                    <input type="hidden" id="correct-answer-{{ tg.id }}" value="{{ tg.text_gap.correct_answer|lower }}">
+
+                    <!-- 3. Rendered нәтиже -->
+                    <div id="rendered-{{ tg.id }}" class="text-base text-justify text-muted-foreground mb-4"></div>
+                </div>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const prompts = document.querySelectorAll("[id^='prompt-']");
+
+                        prompts.forEach(promptEl => {
+                            const id = promptEl.id.replace('prompt-', '');
+                            const answerEl = document.getElementById(`answer-${id}`);
+                            const resultEl = document.getElementById(`rendered-${id}`);
+                            const correctInputEl = document.getElementById(`correct-answer-${id}`);
+                            
+                            if (promptEl && answerEl && resultEl && correctInputEl) {
+                                const prompt = promptEl.innerText.trim();
+                                const answer = answerEl.innerText.trim();
+                                const correctAnswer = correctInputEl.value.trim().toLowerCase();
+
+                                let filled = "";
+
+                                if (answer.toLowerCase() === correctAnswer) {
+                                    filled = prompt.replace('...', `<strong class="bg-green-100 text-green-700 px-1 rounded">${answer}</strong>`);
+                                } else {
+                                    filled = prompt.replace('...', `
+                                        <del class="bg-red-100 text-red-600 px-1 rounded">${answer}</del> 
+                                        <span class="text-sm italic text-gray-500"> (Дұрысы: 
+                                            <strong class="bg-green-100 text-green-700 px-1 rounded">${correctAnswer}</strong>)
+                                        </span>`);
+                                }
+
+                                resultEl.innerHTML = filled;
+                            }
+                        });
+                    });
+                </script>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="grid gap-4">
+            <div class="flex justify-between">
+                <div class="flex items-center gap-2 bg-secondary-100 font-medium py-2 px-4 rounded-xl">
+                    <svg class="w-5 h-5 text-amber-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
+                    </svg>
+
+                    <span>{{ user_task.task.rating }} балл</span>
+                </div>
+
+                <div class="flex items-center gap-2 bg-secondary-100 font-medium py-2 px-4 rounded-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock4-icon lucide-clock-4">
+                        <path d="M12 6v6l4 2" />
+                        <circle cx="12" cy="12" r="10" />
+                    </svg>
+                    <span>~ {{ user_task.task.duration }}:00</span>
+                </div>
+            </div>
+
+            <form method="post" class="grid gap-4">
+                {% csrf_token %}
+                {% for tg in user_text_gaps %}
+                    <div class="grid gap-4 p-6 border border-border-200 rounded-xl shadow">
+                        <div class="text-base text-justify">{{ tg.text_gap.prompt|safe }}</div>
+
+                        <div class="flex gap-2 justify-center">
+                            <input 
+                                type="text" 
+                                name="answer_{{ tg.id }}" 
+                                id="answer-input-{{ tg.id }}"
+                                class="block p-2.5 border border-border-300 text-foreground rounded-lg focus:ring-primary-600 focus:border-primary-700"
+                                required
+                            >
+
+                            <input type="hidden" id="correct-answer-{{ tg.id }}" value="{{ tg.text_gap.correct_answer|lower }}">
+
+                            <button 
+                                type="button"
+                                id="check-btn-{{ tg.id }}"
+                                class="flex gap-2 justify-center items-center text-center cursor-pointer focus:outline-none text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg px-5 py-2.5"    
+                                onclick="checkAnswer('{{ tg.id }}')"
+                            >
+                                Тексеру
+                            </button>
+                        </div>
+                        <span id="result-{{ tg.id }}" class="text-sm font-medium ml-2"></span>
+                    </div>
+                {% endfor %}
+
+                <script>
+                    function checkAnswer(id) {
+                        const input = document.getElementById(`answer-input-${id}`);
+                        const correctAnswer = document.getElementById(`correct-answer-${id}`).value.trim().toLowerCase();
+                        const result = document.getElementById(`result-${id}`);
+                        const button = document.getElementById(`check-btn-${id}`);
+                        
+                        if (input.value === "") {
+                            alert("Жауап жазыңыз!")
+                        } else {
+                            if (input.value.trim().toLowerCase() === correctAnswer) {
+                                result.textContent = "✅ Дұрыс!";
+                                result.style.color = "green";
+                            } else {
+                                result.textContent = "❌ Қате!";
+                                result.style.color = "red";
+                            }
+
+                            input.readOnly = true;
+                            button.disabled = true;
+                            button.classList.add("opacity-50", "cursor-not-allowed");
+                        }
+                    }
+                </script>
+                                
+                <div class="flex justify-center">
+                    <button
+                        type="submit"
+                        class="flex gap-2 justify-center items-center text-center cursor-pointer focus:outline-none text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg px-5 py-2.5"
+                    >
+                        Толықтыруды аятау
+                    </button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+</div>

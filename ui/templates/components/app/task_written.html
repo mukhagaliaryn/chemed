@@ -1,0 +1,121 @@
+<div class="max-w-screen-lg w-full mx-auto">
+    {% if user_task.is_completed %}
+        <div class="grid gap-4">
+            <div class="flex justify-between">
+                <div class="flex items-center gap-2 bg-secondary-100 font-medium py-2 px-4 rounded-xl">
+                    <svg class="w-5 h-5 text-amber-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
+                    </svg>
+                    <span>{{ user_task.task.rating }}/{{ user_task.rating }} балл</span>
+                </div>
+
+                <div class="flex gap-1 items-center font-medium px-4 py-2 rounded-xl bg-primary-100 text-primary-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-circle-check-icon lucide-circle-check">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="m9 12 2 2 4-4" />
+                    </svg>
+                    <span>Орындалды</span>
+                </div>
+            </div>
+            
+            <div class="grid gap-4">
+                {% for uw in user_written %}
+                    <div class="richtext text-left">{{ uw.written.instruction|safe }}</div>
+                    <div class="grid gap-2 p-4 text-left bg-secondary-100 rounded-xl">
+                        <span class="text-muted">Сіздің жауабыңыз</span>                        
+                        <div class="">{{ uw.answer|safe }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="grid gap-4">
+            <div class="flex justify-between">
+                <div class="flex items-center gap-2 bg-secondary-100 font-medium py-2 px-4 rounded-xl">
+                    <svg class="w-5 h-5 text-amber-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
+                    </svg>
+
+                    <span>{{ user_task.task.rating }} балл</span>
+                </div>
+
+                <div class="flex items-center gap-2 bg-secondary-100 font-medium py-2 px-4 rounded-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock4-icon lucide-clock-4">
+                        <path d="M12 6v6l4 2" />
+                        <circle cx="12" cy="12" r="10" />
+                    </svg>
+                    <span>~ {{ user_task.task.duration }}:00</span>
+                </div>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="grid gap-4">
+                {% csrf_token %}
+                {% for uw in user_written %}
+                    <div class="grid gap-4">
+                        <div class="richtext text-left">{{ uw.written.instruction|safe }}</div>
+                        {% if uw.is_submitted %}
+                            <div class="grid gap-2 text-primary-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                                    class="lucide lucide-clock-fading-icon lucide-clock-fading mx-auto">
+                                    <path d="M12 2a10 10 0 0 1 7.38 16.75" />
+                                    <path d="M12 6v6l4 2" />
+                                    <path d="M2.5 8.875a10 10 0 0 0-.5 3" />
+                                    <path d="M2.83 16a10 10 0 0 0 2.43 3.4" />
+                                    <path d="M4.636 5.235a10 10 0 0 1 .891-.857" />
+                                    <path d="M8.644 21.42a10 10 0 0 0 7.631-.38" />
+                                </svg>
+                                <span>Оқытушының бағалауын күту</span>
+                            </div>
+                        {% else %}
+                            <div class="grid gap-2 text-left">
+                                <label class="font-medium">Жауабы</label>
+                                <textarea 
+                                    id="summernote"
+                                    name="answer_{{ uw.id }}" 
+                                    class="w-full border border-border-200 rounded-lg bg-secondary-50" 
+                                    rows="10" required
+                                >{{ uw.answer }}</textarea>
+                            </div>
+
+                            <div class="grid gap-2 text-left">
+                                <label class="font-medium">Файл (қалауыңызша):</label>
+                                <input 
+                                    type="file" 
+                                    name="file_{{ uw.id }}" 
+                                    class="block w-full text-sm border border-border-200 rounded-xl p-2"
+                                    accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.zip,.rar,.7z,.ppt,.pptx"
+                                />
+
+                                {% if uw.file %}
+                                    <span class="text-xs text-muted-foreground">
+                                        Бұрын жүктелген: <a href="{{ uw.file.url }}" class="underline" target="_blank" rel="noopener">файлды ашу</a>
+                                    </span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                    </div>
+                    {% if not uw.is_submitted %}
+                        <div class="flex justify-center">
+                            <button
+                                type="submit"
+                                class="flex gap-2 justify-center items-center text-center cursor-pointer focus:outline-none text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg px-5 py-2.5"
+                            >
+                                Тапсырманы жіберу
+                            </button>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </form>  
+        </div>
+    {% endif %}
+</div>
+

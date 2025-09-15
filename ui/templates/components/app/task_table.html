@@ -1,0 +1,86 @@
+{% load filters %}
+
+
+<div class="max-w-screen-lg w-full mx-auto">
+    <div class="grid gap-4">
+        {% if user_task.is_completed %}
+            <div class="flex justify-between">
+                <div class="flex items-center gap-2 bg-secondary-100 font-medium py-2 px-4 rounded-xl">
+                    <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
+                    </svg>
+                    <span>{{ user_task.rating }}/{{ user_task.task.rating }} балл</span>
+                </div>
+            
+            
+                <div class="flex gap-1 items-center font-medium px-4 py-2 rounded-xl bg-primary-100 text-primary-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-circle-check">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="m9 12 2 2 4-4" />
+                    </svg>
+                    <span>Орындалды</span>
+                </div>
+            </div>
+        {% endif %}
+
+        <form method="post" class="grid gap-4">
+            {% csrf_token %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full border border-secondary-300 rounded-lg overflow-hidden">
+                    <thead class="bg-secondary-100 font-semibold">
+                        <tr>
+                            <th class="border border-secondary-300 px-4 py-2 text-left">Қатар / Баған</th>
+                            {% for column in table_columns %}
+                            <th class="border border-secondary-300 px-4 py-2 text-center">{{ column.label|safe }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in table_rows %}
+                        <tr>
+                            <td class="border border-secondary-300 px-4 py-2 font-medium bg-secondary-50">{{ row.label|safe }}</td>
+                            {% for column in table_columns %}
+                            {% with answer=answer_matrix|get_item:row.id|get_item:column.id %}
+                            {% with correct=correct_matrix|get_item:row.id|get_item:column.id %}
+                            <td class="border border-gray-300 text-center 
+                                {% if user_task.is_completed %}
+                                    {% if answer.checked and correct %}
+                                        bg-green-100
+                                    {% elif answer.checked and not correct %}
+                                        bg-red-100
+                                    {% elif not answer.checked and correct %}
+                                        bg-yellow-100
+                                    {% endif %}
+                                {% endif %}"
+                            >
+                                <input 
+                                    type="checkbox" 
+                                    name="cell_{{ row.id }}_{{ column.id }}" 
+                                    {% if user_task.is_completed %}disabled{% endif %}
+                                    {% if answer.checked %}checked{% endif %} class="w-5 h-5" />
+                            </td>
+                            {% endwith %}
+                            {% endwith %}
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if not user_task.is_completed %}
+                <div class="flex justify-center">
+                    <button type="submit"
+                        class="flex gap-2 justify-center items-center text-center cursor-pointer focus:outline-none text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg px-5 py-2.5">
+                        Тапсырманы жіберу
+                    </button>
+                </div>
+            {% endif %}
+        </form>
+
+
+    </div>
+</div>

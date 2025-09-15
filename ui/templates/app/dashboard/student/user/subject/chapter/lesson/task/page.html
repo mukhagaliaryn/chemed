@@ -1,0 +1,62 @@
+{% extends 'layouts/task_layout.html' %}
+
+
+{% block title %}{{ user_task.task.get_task_type_display }}{% endblock title %}
+
+
+{% block task_layout %}
+<div class="grid gap-4">
+    <div class="grid gap-2">
+        <h1 class="text-2xl font-medium">{{ user_task.task.get_task_type_display }}</h1>
+        <a href="{% url 'user_lesson' user_subject.id user_chapter.id user_lesson.id %}" class="flex justify-center gap-1 items-center font-medium text-primary-600 hover:underline">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-arrow-left-icon lucide-arrow-left">
+                <path d="m12 19-7-7 7-7" />
+                <path d="M19 12H5" />
+            </svg>
+            <span>{{ user_lesson.lesson.title }}</span>
+        </a>
+    </div>
+    <div class="w-full max-w-2xl mx-auto text-left border-y border-border-200 py-4 text-muted richtext">
+        {{ user_task.task.description|safe }}
+    </div>
+    
+    {% if task_type == 'video' %}
+        {% include 'components/app/task_video.html' %}
+    {% elif task_type == 'written' %}
+        {% include 'components/app/task_written.html' %}
+    {% elif task_type == 'text_gap' %}
+        {% include 'components/app/task_text_gap.html' %}
+    {% elif task_type == 'test' %}
+        {% include 'components/app/task_test.html' %}
+    {% elif task_type == 'matching' %}
+        {% include 'components/app/task_matching.html' %}
+    {% elif task_type == 'table' %}
+        {% include 'components/app/task_table.html' %}
+    {% endif %}
+
+    <div class="absolute bottom-10 right-10">
+        {% if all_tasks_completed and not user_lesson.is_completed %}
+            {% include 'components/app/user/lesson/lesson_finish_modal.html' %}
+        {% elif user_lesson.is_completed %}
+            <div class="grid gap-4">
+                <div class="grid p-4 rounded-lg bg-primary-100 text-green-700 text-left">
+                    <span class="font-medium">Бұл сабақ аяқталған.</span> 
+                    <div class="flex gap-2 items-center">
+                        Жинаған балл:
+                        <div class="flex gap-1 items-center">
+                            <svg class="w-5 h-5 text-amber-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                                height="24" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
+                            </svg>
+                            <span>{{ user_lesson.rating }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock task_layout %}

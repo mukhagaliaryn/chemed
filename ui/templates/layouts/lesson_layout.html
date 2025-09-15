@@ -1,0 +1,175 @@
+{% extends 'layouts/base_layout.html' %}
+{% load static %}
+{% load filters %}
+
+
+{% block base_layout %}
+<div class="grid lg:flex items-start p-8 gap-8">
+    <div class="flex-1">
+        {% block lesson_layout %}
+        {% endblock lesson_layout %}
+    </div>
+
+    <div 
+        id="accordion-collapse" 
+        data-accordion="collapse" 
+        data-active-classes="text-foreground"
+        data-inactive-classes="text-muted"
+        class="w-full lg:max-w-md border border-border-200 rounded-xl overflow-hidden"
+    >
+        {% for uc in user_chapters %}
+            <h2 id="accordion-collapse-heading-{{ uc.id }}">
+                <button 
+                    type="button"
+                    class="flex items-center gap-2 justify-between w-full p-4 font-semibold bg-white border-b border-border-200"
+                    data-accordion-target="#accordion-collapse-body-{{ uc.id }}" 
+                    aria-expanded="{% if uc.id == active_chapter_id %}true{% else %}false{% endif %}"
+                    aria-controls="accordion-collapse-body-{{ uc.id }}"
+                >
+                    <div class="flex w-full items-center justify-between gap-4">
+                        <div class="flex-1 flex gap-2 items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                                class="lucide lucide-folder-open-icon lucide-folder-open">
+                                <path
+                                    d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2" />
+                            </svg>
+                            <h1 class="text-left line-clamp-1">{{ uc.chapter.name }}</h1>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            {% if uc.is_completed %}
+                                <div class="flex gap-1 items-center">
+                                    <svg class="w-5 h-5 text-amber-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                                        height="24" fill="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
+                                    </svg>
+                                    <span>{{ uc.rating }}</span>
+                                </div>
+                            {% endif %}
+
+                            {% if uc.percentage %}
+                                <div class="w-24 bg-secondary-200 rounded-full overflow-hidden">
+                                    <div 
+                                        class="bg-primary-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" 
+                                        style="width: {{ uc.percentage|floatformat:0 }}%"
+                                    >{{ uc.percentage|floatformat:0 }}%</div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                        data-accordion-icon
+                        class="lucide lucide-chevron-up-icon lucide-chevron-up rotate-180 shrink-0">
+                        <path d="m18 15-6-6-6 6" />
+                    </svg>
+                </button>
+            </h2>
+            <div
+                id="accordion-collapse-body-{{ uc.id }}" 
+                class="{% if uc.id == active_chapter_id %}block{% else %}hidden{% endif %}" 
+                aria-labelledby="accordion-collapse-heading-{{ uc.id }}"
+            >
+                <div class="grid gap-2 p-4 bg-secondary-100">
+                    {% with user_lessons_by_chapter|dict_get:uc.chapter.id as chapter_user_lessons %}
+                        {% for ul in chapter_user_lessons %}
+                            {% if ul.status == 'in-progress' or ul.status == 'finished' %}
+                                {% url 'user_lesson' user_subject.id uc.id ul.id as lesson_url %}
+                                <a
+                                    href="{{ lesson_url }}"
+                                    class="flex items-center gap-2 justify-between border border-secondary-200 rounded-lg p-4 {% if request.path == lesson_url %}bg-primary-600 text-white{% else %}bg-white{% endif %}"
+                                >
+                                    <div class="flex items-start gap-4">
+                                        {% if ul.lesson.lesson_type == 'lesson' %}
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                                                class="lucide lucide-presentation-icon lucide-presentation">
+                                                <path d="M2 3h20" />
+                                                <path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3" />
+                                                <path d="m7 21 5-5 5 5" />
+                                            </svg>
+                                        {% else %}
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                                                class="lucide lucide-layout-list-icon lucide-layout-list">
+                                                <rect width="7" height="7" x="3" y="3" rx="1" />
+                                                <rect width="7" height="7" x="3" y="14" rx="1" />
+                                                <path d="M14 4h7" />
+                                                <path d="M14 9h7" />
+                                                <path d="M14 15h7" />
+                                                <path d="M14 20h7" />
+                                            </svg>
+                                        {% endif %}
+
+                                        <div class="grid flex-1">
+                                            <h1 class="font-medium line-clamp-1">{{ ul.lesson.title }}</h1>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-1 items-center">
+                                        <svg class="w-5 h-5 text-amber-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                                            height="24" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
+                                        </svg>
+                                        <span>{{ ul.rating }}</span>
+                                    </div>
+                                </a>
+                            {% else %}
+                                <div
+                                    class="flex gap-2 items-center justify-between border border-secondary-200 rounded-lg p-4 bg-white"
+                                >
+                                    <div class="flex items-start gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock-icon lucide-lock">
+                                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                        </svg>
+
+                                        <div class="grid flex-1">
+                                            <h1 class="font-medium line-clamp-1">{{ ul.lesson.title }}</h1>
+                                        </div>
+                                    </div>
+
+                                     <div class="flex gap-1 items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-icon lucide-clock">
+                                            <path d="M12 6v6l4 2" />
+                                            <circle cx="12" cy="12" r="10" />
+                                        </svg>
+                                        <span>{{ ul.total_duration }}:00</span>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% empty %}
+                            <div class="flex gap-2 justify-center text-center text-muted p-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                                    class="lucide lucide-presentation-icon lucide-presentation">
+                                    <path d="M2 3h20" />
+                                    <path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3" />
+                                    <path d="m7 21 5-5 5 5" />
+                                </svg>
+                                <span>Бөлім сабақтары қосылмаған</span>
+                            </div>
+                        {% endfor %}
+                    {% endwith %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="flex gap-2 justify-center text-center text-muted p-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-folder-open-icon lucide-folder-open">
+                    <path
+                        d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2" />
+                </svg>
+                <span>Пәннің бөлімдері қосылмаған</span>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock base_layout %}

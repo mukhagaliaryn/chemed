@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<nav class="fixed top-0 z-50 w-full bg-white border-b border-neutral-200">
+    <div class="h-14 px-3 lg:px-5 lg:pl-3">
+        <div class="h-full flex items-center justify-between">
+            <div class="flex items-center gap-2 justify-start rtl:justify-end">
+                <button 
+                    data-drawer-target="logo-sidebar" 
+                    data-drawer-toggle="logo-sidebar" 
+                    aria-controls="logo-sidebar"
+                    type="button"
+                    class="inline-flex items-center p-2 rounded-lg sm:hidden hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-200"
+                >
+                    <span class="sr-only">Open sidebar</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-align-left-icon lucide-align-left">
+                        <path d="M15 12H3" />
+                        <path d="M17 18H3" />
+                        <path d="M21 6H3" />
+                    </svg>
+                </button>
+                <a 
+                    href="{% url 'home' %}" 
+                    class="flex items-center rounded-sm border border-transparent active:border active:border-dashed active:border-neutral-200"
+                >
+                    <img src="{% static 'images/logo.svg' %}" class="h-6" alt="Biomedia Logo" />
+                </a>
+            </div>
+
+            <div class="flex items-center">
+                <div class="flex items-center ms-3">
+                    <div>
+                        <button 
+                            type="button"
+                            class="flex text-sm rounded-full focus:ring-4 focus:ring-neutral-300"
+                            aria-expanded="false" data-dropdown-toggle="dropdown-user"
+                        >
+                            <span class="sr-only">Open user menu</span>
+                            {% if user.avatar %}
+                                <img 
+                                    class="w-8 h-8 rounded-full"
+                                    src="{{ user.avatar.url }}" alt="user photo"
+                                >
+                            {% else %}
+                                <img 
+                                    class="w-8 h-8 rounded-full"
+                                    src="{% static 'images/user-avatar.jpg' %}" alt="user photo"
+                                >
+                            {% endif %}
+                        </button>
+                    </div>
+                    <div 
+                        class="z-50 hidden my-4 list-none bg-white divide-y divide-neutral-100 rounded-sm shadow-sm"
+                        id="dropdown-user"
+                    >
+                        <div class="px-4 py-3" role="none">
+                            <h1 class="font-semibold text-base" role="none">
+                                {% if user.first_name and user.last_name %}
+                                    {{ user.first_name }} {{ user.last_name }}
+                                {% else %}
+                                    {{ user.username }}
+                                {% endif %}
+                            </h1>
+                            <p class="font-medium truncate text-blue-600 mb-1" role="none">
+                                {{ user.email }}
+                            </p>
+                            <span class="bg-green-100 text-green-800 text-xs font-semibold mt-2 me-2 px-2.5 py-0.5 rounded-sm">
+                                {{ user.get_user_type_display }}
+                            </span>
+                        </div>
+                        <ul class="py-1" role="none">
+                            <li>
+                                <a href="{% url 'account_view' %}"
+                                    class="block px-4 py-2 text-neutral-700 hover:bg-neutral-100"
+                                    role="menuitem">Аккаунт</a>
+                            </li>
+                            <li>
+                                <a href="#"
+                                    class="block px-4 py-2 text-neutral-700 hover:bg-neutral-100"
+                                    role="menuitem">Баптаулар</a>
+                            </li>
+                            <li>
+                                <form action="{% url 'logout_view' %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="w-full cursor-pointer text-left block px-4 py-2 text-neutral-700 hover:bg-neutral-100">Шығу</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<aside 
+    id="logo-sidebar"
+    class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-neutral-200 sm:translate-x-0"
+    aria-label="Sidebar"
+>
+    <div class="h-full px-3 pb-4 overflow-y-auto bg-white">
+        <ul class="space-y-1 font-medium">
+            <li>
+                <a 
+                    href="{% url 'home' %}"
+                    class="flex items-center p-2 rounded-lg group {% if request.path == '/' %}bg-green-600 text-white hover:bg-green-600{% else %}hover:bg-neutral-100 {% endif %}">
+                    <svg class="w-5 h-5 transition duration-75 {% if request.path == '/' %}text-white group-hover:text-white{% else %}group-hover:text-green-600{% endif %}"
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
+                        <path
+                            d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z" />
+                        <path
+                            d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z" />
+                    </svg>
+                    <span class="ms-3">Басқару панелі</span>
+                </a>
+            </li>
+            <li>
+                <a 
+                    href="{% url 'subjects' %}"
+                    class="flex items-center p-2 rounded-lg group {% if request.path == '/subjects/' %}bg-green-600 text-white hover:bg-green-600{% else %}hover:bg-neutral-100{% endif %}"
+                >
+                    <svg class="shrink-0 w-5 h-5 transition duration-75 {% if request.path == '/subjects/' %}text-white group-hover:text-white{% else %}group-hover:text-green-600{% endif %}"
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                        <path d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z" />
+                    </svg>
+                    <span class="flex-1 ms-3 whitespace-nowrap">Пәндер</span>
+                </a>
+            </li>
+
+            <li>
+                <a 
+                    href="{% url 'subjects' %}"
+                    class="flex items-center p-2 rounded-lg group {% if request.path == '/subjects/' %}bg-green-600 text-white hover:bg-green-600{% else %}hover:bg-neutral-100{% endif %}"
+                >
+                    <svg class="shrink-0 w-5 h-5 transition duration-75 {% if request.path == '/subjects/' %}text-white group-hover:text-white{% else %}group-hover:text-green-600{% endif %}"
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                        <path d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z" />
+                    </svg>
+                    <span class="flex-1 ms-3 whitespace-nowrap">Топтар</span>
+                </a>
+            </li>
+
+            <li>
+                <a 
+                    href="{% url 'subjects' %}"
+                    class="flex items-center p-2 rounded-lg group {% if request.path == '/subjects/' %}bg-green-600 text-white hover:bg-green-600{% else %}hover:bg-neutral-100{% endif %}"
+                >
+                    <svg class="shrink-0 w-5 h-5 transition duration-75 {% if request.path == '/subjects/' %}text-white group-hover:text-white{% else %}group-hover:text-green-600{% endif %}"
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                        <path d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z" />
+                    </svg>
+                    <span class="flex-1 ms-3 whitespace-nowrap">Білім алушылар</span>
+                </a>
+            </li>
+
+            <li>
+                <a 
+                    href="{% url 'subjects' %}"
+                    class="flex items-center p-2 rounded-lg group {% if request.path == '/subjects/' %}bg-green-600 text-white hover:bg-green-600{% else %}hover:bg-neutral-100{% endif %}"
+                >
+                    <svg class="shrink-0 w-5 h-5 transition duration-75 {% if request.path == '/subjects/' %}text-white group-hover:text-white{% else %}group-hover:text-green-600{% endif %}"
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                        <path d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z" />
+                    </svg>
+                    <span class="flex-1 ms-3 whitespace-nowrap">Барлық пәндер</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</aside>
+
+<div class="sm:ml-64 mt-14">
+    {% block instructor_layout %}
+    {% endblock instructor_layout %}
+</div>
+{% endblock content %}

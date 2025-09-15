@@ -1,0 +1,193 @@
+{% load filters %}
+
+
+<div class="max-w-screen-lg w-full mx-auto grid gap-4">
+    {% if user_task.is_completed %}
+        <div class="grid gap-4">
+            <div class="flex justify-between">
+                <div class="flex items-center gap-2 bg-secondary-100 font-medium py-2 px-4 rounded-xl">
+                    <svg class="w-5 h-5 text-amber-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
+                    </svg>
+
+                    <span>{{ user_task.task.rating }}/{{ user_task.rating }} балл</span>
+                </div>
+
+                <div class="flex gap-1 items-center font-medium px-4 py-2 rounded-xl bg-primary-100 text-primary-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-circle-check-icon lucide-circle-check">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="m9 12 2 2 4-4" />
+                    </svg>
+                    <span>Орындалды</span>
+                </div>
+            </div>
+
+            {% if user_task.task.params == 'row' %}
+                <table class="w-full text-center table-fixed">
+                    <thead>
+                        <tr>
+                            {% for column in user_task.task.columns.all %}
+                                <th class="border border-border-200 p-2 bg-secondary-100 font-semibold">{{ column.label|safe }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {% for column in user_task.task.columns.all %}
+                                <td class="border border-border-200 align-top min-h-[100px] p-2">
+                                    {% for answer in user_task.matching_answers.all %}
+                                        {% if answer.selected_column.id == column.id %}
+                                            <div class="rounded p-2 mb-2 text-left text-white {% if answer.is_correct %}bg-primary-600{% else %}bg-destructive{% endif %}">
+                                                {{ answer.item.text|safe }}
+                                                {% if not answer.is_correct %}
+                                                    <div class="text-sm text-white mt-1 italic">Дұрысы: {{ answer.item.correct_column.label|safe }}</div>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            {% elif user_task.task.params == 'col' %}
+                <div class="grid border border-border-200">
+                    {% for column in user_task.task.columns.all %}
+                        <div class="flex">
+                            <div class="max-w-xs w-full p-4 bg-secondary-100 font-semibold border-b border-border-200">{{ column.label|safe }}</div>
+
+                            <div class="dropzone flex-1 flex flex-col gap-2 p-2 border-b border-border-200" data-column-id="{{ column.id }}">
+                                {% for answer in user_task.matching_answers.all %}
+                                    {% if answer.selected_column.id == column.id %}
+                                        <div class="rounded p-2 mb-2 text-white text-left {% if answer.is_correct %}bg-primary-600{% else %}bg-destructive{% endif %}">
+                                            {{ answer.item.text|safe }}
+                                            {% if not answer.is_correct %}
+                                                <div class="text-sm text-white mt-1 italic">Дұрысы: {{ answer.item.correct_column.label }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <form method="post" id="matching-form" class="grid gap-8">
+            {% csrf_token %}
+
+            {% if user_task.task.params == 'row' %}
+                <table class="w-full border text-center table-fixed">
+                    <thead>
+                        <tr>
+                            {% for column in user_task.task.columns.all %}
+                                <th class="border border-border-200 p-4 bg-secondary-100 font-semibold">{{ column.label|safe }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {% for column in user_task.task.columns.all %}
+                                <td class="border border-border-200 align-top min-h-[100px]">
+                                    <div class="dropzone min-h-[120px] flex flex-col gap-2 p-2 text-left rounded" data-column-id="{{ column.id }}">
+                                        {% for answer in user_task.matching_answers.all %}
+                                            {% if answer.selected_column.id == column.id %}
+                                                <div class="draggable item bg-primary-200 rounded p-1 mb-1 cursor-move" draggable="true" data-item-id="{{ answer.item.id }}">
+                                                    {{ answer.item.text|safe }}
+                                                    <input type="hidden" name="column_{{ answer.item.id }}" value="{{ column.id }}">
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            {% elif user_task.task.params == 'col' %}
+                <div class="grid border border-border-200">
+                    {% for column in user_task.task.columns.all %}
+                        <div class="flex">
+                            <div class="max-w-xs w-full p-4 bg-secondary-100 font-semibold border-b border-border-200">{{ column.label|safe }}</div>
+
+                            <div class="dropzone flex-1 flex flex-col gap-2 px-2 pt-2 pb-10 border-b border-border-200 text-left" data-column-id="{{ column.id }}">
+                                {% for answer in user_task.matching_answers.all %}
+                                    {% if answer.selected_column.id == column.id %}
+                                        <div class="draggable item bg-primary-200 rounded p-1 mb-1 cursor-move" draggable="true" data-item-id="{{ answer.item.id }}">
+                                            {{ answer.item.text|safe }}
+                                            <input type="hidden" name="column_{{ answer.item.id }}" value="{{ column.id }}">
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="grid gap-4 text-left">
+                <h1 class="font-semibold">Сәйкестендіру керек жауаптар:</h1>
+                <div id="draggables" class="flex flex-wrap gap-2">
+                    {% for answer in user_task.matching_answers.all %}
+                        {% if not answer.selected_column %}
+                            <div class="draggable item bg-amber-200 rounded-lg py-2 px-4 cursor-move" draggable="true" data-item-id="{{ answer.item.id }}">
+                                {{ answer.item.text|safe }}
+                                <input type="hidden" name="column_{{ answer.item.id }}" value="">
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="flex justify-center">
+                <button 
+                    type="submit"
+                    class="flex gap-2 justify-center items-center text-center cursor-pointer focus:outline-none text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg px-5 py-2.5"
+                >
+                    Толықтыруды аятау
+                </button>
+            </div>
+        </form>
+
+        <script>
+            const draggables = document.querySelectorAll('.draggable');
+            const dropzones = document.querySelectorAll('.dropzone');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', e => {
+                    e.dataTransfer.setData('text/plain', draggable.outerHTML);
+                    draggable.classList.add('dragging');
+                });
+            });
+
+            dropzones.forEach(zone => {
+                zone.addEventListener('dragover', e => e.preventDefault());
+                zone.addEventListener('drop', e => {
+                    e.preventDefault();
+
+                    const data = e.dataTransfer.getData('text/plain');
+                    const temp = document.createElement('div');
+                    temp.innerHTML = data;
+                    const newItem = temp.firstElementChild;
+
+                    const sameItem = document.querySelector(`[data-item-id="${newItem.dataset.itemId}"]`);
+                    if (sameItem) sameItem.remove();
+
+                    newItem.querySelector('input[type="hidden"]').value = zone.dataset.columnId;
+
+                    zone.appendChild(newItem);
+
+                    newItem.addEventListener('dragstart', e => {
+                        e.dataTransfer.setData('text/plain', newItem.outerHTML);
+                        newItem.classList.add('dragging');
+                    });
+                });
+            });
+        </script>
+    {% endif %}
+</div>

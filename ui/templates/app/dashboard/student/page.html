@@ -1,0 +1,364 @@
+{% extends "layouts/base_layout.html" %}
+{% load static %}
+
+{% block title %}Басқару панелі{% endblock title %}
+
+
+{% block base_layout %}
+<div class="max-w-screen-xl mx-auto grid gap-8 py-6 px-4">
+    <!-- User full name -->
+    <div class="text-center grid gap-2">
+        {% if user.avatar %}
+            <img 
+                class="w-28 h-28 rounded-full mx-auto"
+                src="{{ user.avatar.url }}" alt="user photo"
+            >
+        {% else %}
+            <div 
+                id="avatar-preview"
+                class="w-28 h-28 mx-auto rounded-full bg-secondary-100 flex items-center justify-center text-foreground text-4xl"
+            >
+                {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+            </div>
+        {% endif %}
+        <h1 class="text-2xl font-medium" role="none">
+            👋, {{ user.first_name }} {{ user.last_name }}
+        </h1>
+        <div class="grid gap-1">
+            <div class="flex justify-center">
+                <div class="flex items-center gap-1 bg-primary-100 text-primary-600 font-medium px-2.5 py-0.5 rounded-xl">
+                    <div class="w-2 h-2 rounded-full bg-primary-600"></div>
+                    {{ user.get_user_type_display }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statictics -->
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
+        <div class="block text-center p-6 bg-primary-600 border text-white border-secondary-200 rounded-lg">
+            <h5 class="mb-2 text-4xl font-semibold tracking-tight">{{ statistics.in_process }}</h5>
+            <p class="font-normal">өтіліп жатқан пәндер</p>
+        </div>
+
+        <div class="block text-center p-6 bg-primary-600 border text-white border-secondary-200 rounded-lg">
+            <h5 class="mb-2 text-4xl font-semibold tracking-tight">{{ statistics.completed }}</h5>
+            <p class="font-normal">аяқталған пәндер</p>
+        </div>
+
+        <div class="block text-center p-6 bg-primary-600 border text-white border-neutral-200 rounded-lg">
+            <h5 class="mb-2 text-4xl font-semibold tracking-tight">{{ statistics.average_percentage }}%</h5>
+            <p class="font-normal">жалпы пәндердің өтілуі</p>
+        </div>
+    </div>
+
+    <!-- User lessons  -->
+    <div class="mb-4 border-b border-border-200">
+        <!-- Tab trigger -->
+        <ul 
+            class="flex flex-wrap -mb-px text-sm font-medium text-center" 
+            id="default-tab" 
+            data-tabs-toggle="#default-tab-content" role="tablist"
+            data-tabs-inactive-classes="text-muted border-transparent hover:border-b-border-200"
+            data-tabs-active-classes="text-primary-600 hover:text-primary-600 border-primary-600"
+        >
+            <!-- user subjects -->
+            <li class="me-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="user-subject-tab" data-tabs-target="#user-subject" type="button" role="tab" aria-controls="user-subject" aria-selected="false">
+                    Менің пәндерім
+                </button>
+            </li>
+            <!-- all subjects -->
+            <li class="me-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg" id="subjects-tab" data-tabs-target="#subjects" type="button" role="tab" aria-controls="subjects" aria-selected="false">
+                    Ашық пәндер
+                </button>
+            </li>
+        </ul>
+    </div>
+    <!-- Tab content -->
+    <div id="default-tab-content">
+        <!-- user subjects -->
+        <div class="hidden" id="user-subject" role="tabpanel" aria-labelledby="user-subject-tab">
+            <div class="grid gap-4">
+                <div class="hidden lg:flex gap-4">
+                    <div class="flex-1 flex items-center justify-between">
+                        <h5 class="text-base font-semibold leading-none">Өтіліп жатқан пәндер</h5>
+                    </div>
+
+                    <div class="max-w-sm w-full flex items-center justify-between">
+                        <h5 class="text-base font-semibold leading-none">Білім алушылар</h5>
+                    </div>
+                </div>
+
+                <div class="grid gap-4">
+                    {% for item in subject_list %}
+                        {% if item.user_subject %}
+                            <div class="flex flex-col lg:flex-row rounded-lg border border-border-200">
+                                <a 
+                                    href="{% url 'user_lesson' item.user_subject.id item.first_chapter.id item.first_lesson.id %}"
+                                    class="flex-1 grid gap-4"
+                                >
+                                    <div class="grid md:flex items-start gap-4 p-4 lg:border-r border-border-200 hover:bg-secondary-50">
+                                        <div class="w-full md:max-w-xs rounded-lg overflow-hidden">
+                                            {% if item.subject.poster %}
+                                                <img
+                                                    src="{{ item.subject.poster.url }}"
+                                                    class="aspect-video flex justify-center items-center text-muted bg-secondary-100" 
+                                                />
+                                            {% else %}
+                                                <div class="aspect-video flex justify-center items-center text-muted bg-secondary-100">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-box-icon lucide-box">
+                                                        <path
+                                                            d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+                                                        <path d="m3.3 7 8.7 5 8.7-5" />
+                                                        <path d="M12 22V12" />
+                                                    </svg>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="flex-1 grid gap-4">
+                                            <div class="grid gap-2">
+                                                <div class="flex gap-2 items-center">
+                                                    <h1 class="text-xl font-semibold">{{ item.user_subject.subject.name }}</h1>
+                                                    {% if item.user_subject.is_completed %}
+                                                        <svg 
+                                                            class="text-primary-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" 
+                                                            width="24" height="24" fill="currentColor" viewBox="0 0 24 24"
+                                                        >
+                                                            <path 
+                                                                fill-rule="evenodd"
+                                                                d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                                                                clip-rule="evenodd" 
+                                                            />
+                                                        </svg>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="flex gap-2">
+                                                    <div class="flex gap-1 items-center py-1 px-2 rounded-xl bg-secondary-100">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                            stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                                                            class="lucide lucide-folder-open-icon lucide-folder-open">
+                                                            <path
+                                                                d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2" />
+                                                        </svg>
+                                                        <span class="font-medium">{{ item.user_subject.user_chapters.count }}/{{ item.completed_chapter_count }}</span>
+                                                        <svg class="text-primary-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                                            <path fill-rule="evenodd"
+                                                                d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                                                                clip-rule="evenodd" />
+                                                        </svg>
+                                                    </div>
+
+                                                    <div class="flex gap-1 items-center py-1 px-2 rounded-xl bg-secondary-100">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                            stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                                                            class="lucide lucide-folder-open-icon lucide-folder-open">
+                                                            <path
+                                                                d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2" />
+                                                        </svg>
+                                                        <span class="font-medium">{{ item.user_subject.user_lessons.count }}/{{ item.completed_lesson_count }}</span>
+                                                        <svg class="text-primary-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                                            <path fill-rule="evenodd"
+                                                                d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                                                                clip-rule="evenodd" />
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="grid gap-2">
+                                                <div>
+                                                    <div class="inline-flex items-center gap-2 bg-secondary-100 font-medium py-2 px-4 rounded-xl">
+                                                        <svg class="w-5 h-5 text-amber-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                                                            height="24" fill="currentColor" viewBox="0 0 24 24">
+                                                            <path
+                                                                d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
+                                                        </svg>
+                                                        <span>{{ item.user_subject.rating }} балл</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="w-full bg-secondary-200 rounded-full overflow-hidden">
+                                                    <div 
+                                                        class="bg-primary-600 text-xs font-medium text-white text-center p-0.5 leading-none rounded-full"
+                                                        style="width: {{ item.user_subject.percentage|floatformat:0 }}%"
+                                                    > 
+                                                        {{ item.user_subject.percentage|floatformat:0 }}%
+                                                    </div>
+                                                </div>
+
+                                                {% if item.user_subject.is_completed %}
+                                                    <div class="flex gap-1 items-center text-muted">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                            stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flag-icon lucide-flag">
+                                                            <path
+                                                                d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528" />
+                                                        </svg>
+                                                        <span class="font-medium">{{ item.user_subject.completed_at|date:"d.m.Y - H:i" }}</span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+
+                                <div class="w-full lg:max-w-sm grid gap-2">
+                                    {% for student in item.students %}
+                                        <div class="flex items-center py-2 px-4 border-b border-secondary-200">
+                                            <div class="shrink-0">
+                                                {% if student.user.avatar %}
+                                                    <img 
+                                                        class="w-8 h-8 rounded-full"
+                                                        src="{{ student.user.avatar.url }}" alt="user photo"
+                                                    >
+                                                {% else %}
+                                                    <div 
+                                                        class="w-8 h-8 rounded-full bg-secondary-100 flex items-center justify-center text-foreground"
+                                                    >
+                                                        {{ student.user.first_name|first|upper }}{{ student.user.last_name|first|upper }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="flex-1 min-w-0 ms-4">
+                                                <h1 class="text-base font-medium truncate">{{ student.user.first_name }} {{ student.user.last_name }}</h1>
+                                                <p class="text-muted truncate ">{{ student.user.email }}</p>
+                                            </div>
+                                                
+                                            <div 
+                                                class="radial-progress bg-secondary-100 text-xs text-primary-600" 
+                                                style="--value: {{ student.percentage|floatformat:0 }}; --size: 3rem;" 
+                                                aria-valuenow="{{ student.percentage|floatformat:0 }}" role="progressbar"
+                                            >
+                                                {{ student.percentage|floatformat:0 }}%
+                                            </div>
+                                        </div>
+                                    {% empty %}
+                                        <div class="flex items-center justify-center py-4">
+                                            <div class="grid gap-2 text-muted">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-user-round-icon lucide-user-round mx-auto">
+                                                    <circle cx="12" cy="8" r="5" />
+                                                    <path d="M20 21a8 8 0 0 0-16 0" />
+                                                </svg>
+                                                <span>Әлі ешкім тіркелген жоқ!</span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- all subjects -->
+        <div class="hidden" id="subjects" role="tabpanel" aria-labelledby="subjects-tab">
+            <div class="grid">
+                {% if subject_list %}
+                    <div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {% for item in subject_list %}
+                            <div
+                                class="rounded-lg border border-secondary-200 overflow-hidden hover:shadow"
+                            >
+                                <a 
+                                    href="{% url 'subject_detail' item.subject.id %}" 
+                                    class="block aspect-video"
+                                >
+                                    <div class="bg-secondary-100 w-full h-full flex justify-center items-center text-muted">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-box-icon lucide-box">
+                                            <path
+                                                d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+                                            <path d="m3.3 7 8.7 5 8.7-5" />
+                                            <path d="M12 22V12" />
+                                        </svg>
+                                    </div>
+                                </a>
+                                
+                                <div class="p-4">
+                                    <a 
+                                        href="{% url 'subject_detail' item.subject.id %}" 
+                                        class="grid gap-2 pb-2"
+                                    >
+                                        <h1 class="text-base font-semibold line-clamp-1">{{ item.subject.name }}</h1>
+                                        <div class="flex items-center gap-4">
+                                            <div class="flex gap-2 items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-folder-open-icon lucide-folder-open">
+                                                    <path
+                                                        d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2" />
+                                                </svg>
+                                                <span class="text-muted">{{ item.subject.chapters.count }} бөлім</span>
+                                            </div>
+                                            <div class="flex gap-2 items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-folder-open-icon lucide-folder-open">
+                                                    <path
+                                                        d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2" />
+                                                </svg>
+                                                <span class="text-muted">{{ item.subject.lessons.count }} сабақ</span>
+                                            </div>
+                                        </div>
+                                    </a>
+
+                                    <div class="flex gap-2">
+                                        {% if item.user_subject %}
+                                            <a 
+                                                href="{% url 'user_lesson' item.user_subject.id item.first_chapter.id item.first_lesson.id %}" 
+                                                class="flex gap-2 justify-center items-center w-full text-center cursor-pointer focus:outline-none bg-secondary-100 hover:bg-secondary-200 focus:ring-4 focus:ring-secondary-300 font-medium rounded-lg px-5 py-2.5"
+                                            >
+                                                <span>Сабаққа кіру</span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-arrow-right-icon lucide-arrow-right">
+                                                    <path d="M5 12h14" />
+                                                    <path d="m12 5 7 7-7 7" />
+                                                </svg>
+                                            </a>
+                                        {% else %}
+                                            <form action="{% url 'enroll_subject' item.subject.id %}" method="post" class="w-full">
+                                                {% csrf_token %}
+                                                <button
+                                                    type="submit"
+                                                    class="flex gap-2 justify-center items-center w-full text-center cursor-pointer focus:outline-none text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg px-5 py-2.5"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus">
+                                                        <path d="M5 12h14" />
+                                                        <path d="M12 5v14" />
+                                                    </svg>
+                                                    <span>Пәнге жазылу</span>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="flex justify-center py-8">
+                        <div class="grid gap-2 text-muted">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-box-icon lucide-box mx-auto">
+                                <path
+                                    d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+                                <path d="m3.3 7 8.7 5 8.7-5" />
+                                <path d="M12 22V12" />
+                            </svg>
+                            <span>Сізді ешқандай пәндер тіркелмеген</span>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock base_layout %}

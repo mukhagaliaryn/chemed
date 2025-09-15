@@ -1,0 +1,135 @@
+<div class="max-w-screen-lg w-full mx-auto">
+    {% if user_task.is_completed %}
+        <div class="grid gap-4">
+            <div class="flex justify-between">
+                <div class="flex items-center gap-2 bg-secondary-100 font-medium py-2 px-4 rounded-xl">
+                    <svg class="w-5 h-5 text-amber-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
+                    </svg>
+
+                    <span>{{ user_task.task.rating }}/{{ user_task.rating }} балл</span>
+                </div>
+
+                <div class="flex gap-1 items-center font-medium px-4 py-2 rounded-xl bg-primary-100 text-primary-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-circle-check-icon lucide-circle-check">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="m9 12 2 2 4-4" />
+                    </svg>
+                    <span>Орындалды</span>
+                </div>
+            </div>
+
+            <div class="grid gap-8 text-left">
+                {% for ua in user_answers %}
+                    <div class="grid gap-4 border-b border-border-200 pb-4">
+                        <div class="flex gap-2 font-medium mb-2">
+                            <span class="text-xl">{{ forloop.counter }}.</span>
+                            <div class="richtext">{{ ua.question.text|safe }}</div>
+                        </div>
+
+                        {% comment "Қолданушы таңдаған опциялар" %}
+                            {% set selected_ids = ua.options.values_list('id', flat=True) %}
+                        {% endcomment %}
+                        
+                        <div class="grid gap-2 {% if user_task.task.params == 'true-false' %}grid-cols-2{% endif %}">
+                            {% with correct_options=ua.question.options.all|dictsort:"id" %}
+                                {% for opt in ua.question.options.all %}
+                                    <div class="flex items-center border border-border-200 rounded-xl p-4">
+                                        {% if ua.question.question_type == 'simple' %}
+                                            <input 
+                                                type="radio" 
+                                                disabled
+                                                {% if opt in ua.options.all %}checked{% endif %}
+                                            >
+                                        {% else %}
+                                            <input 
+                                                type="checkbox" 
+                                                disabled
+                                                {% if opt in ua.options.all %}checked{% endif %}
+                                            >
+                                        {% endif %}
+
+                                        <label class="ml-2">
+                                            {{ opt.text|safe }}
+
+                                            {% if opt.is_correct %}
+                                                <span class="text-xs px-2 py-1 rounded-xl bg-primary-100 text-green-600">Дұрыс</span>
+                                            {% endif %}
+
+                                            {% if opt in ua.options.all and not opt.is_correct %}
+                                                <span class="text-xs px-2 py-1 rounded-xl bg-red-100 text-destructive">Қате таңдалды</span>
+                                            {% endif %}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    {% else %}
+        <form method="post" class="w-full text-left grid gap-8">
+            {% csrf_token %}
+
+            {% for ua in user_answers %}
+                <div class="grid gap-4">
+                    <div class="flex gap-2">
+                        <span class="font-medium text-xl">{{ ua.question.order }}.</span>
+                        <div class="richtext font-medium mb-2">{{ ua.question.text|safe }}</div>
+                    </div>
+
+                    <div class="grid gap-2 {% if user_task.task.params == 'true-false' %}grid-cols-2{% endif %}">
+                        {% if ua.question.question_type == 'simple' %}
+                            {% for opt in ua.question.options.all %}
+                                <label 
+                                    for="opt_{{ opt.id }}" 
+                                    class="flex gap-4 items-center p-4 border border-border-200 rounded-xl hover:bg-secondary-100 cursor-pointer"
+                                >
+                                    <input type="radio"
+                                        name="question_{{ ua.question.id }}"
+                                        value="{{ opt.id }}"
+                                        id="opt_{{ opt.id }}"
+                                        {% if opt in ua.options.all %}checked{% endif %}
+                                    >
+                                    <span>{{ opt.text|safe }}</span>
+                                </label>
+                            {% endfor %}
+                        {% elif ua.question.question_type == 'multiple' %}
+                            {% for opt in ua.question.options.all %}
+                                <label 
+                                    for="opt_{{ opt.id }}" 
+                                    class="flex gap-4 items-center p-4 border border-border-200 rounded-xl hover:bg-secondary-100 cursor-pointer"
+                                >
+                                    <input type="checkbox"
+                                        name="question_{{ ua.question.id }}"
+                                        value="{{ opt.id }}"
+                                        id="opt_{{ opt.id }}"
+                                        {% if opt in ua.options.all %}checked{% endif %}
+                                    >
+                                    <span>{{ opt.text|safe }}</span>
+                                </label>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            
+            <div class="flex justify-center">
+                <button 
+                    type="submit" 
+                    class="flex gap-2 justify-center items-center text-center cursor-pointer focus:outline-none text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg px-5 py-2.5"
+                >
+                    Тестті аяқтау
+                </button>
+            </div>
+        </form>
+    {% endif %}
+</div>
+
+

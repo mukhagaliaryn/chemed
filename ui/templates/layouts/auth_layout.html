@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="w-full h-screen overflow-auto flex justify-center py-8 px-4 sm:px-0 sm:py-16 items-start bg-background">
+    <div class="max-w-md w-full grid gap-4">
+        <div class="relative">
+            <a 
+                href="{% url 'student' %}"
+                class="w-52 mx-auto overflow-hidden block"    
+            >
+                <img src="{% static 'images/logo.svg' %}" alt="Logo" class="w-full">
+            </a>
+        </div>
+
+        <div class="relative">
+            {% block auth_layout %}
+            {% endblock auth_layout %}
+        </div>
+    </div>
+</div>
+{% endblock %}
