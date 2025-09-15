@@ -13,28 +13,31 @@
             </a>
 
             <div class="flex items-center">
+                <a href="/admin/"
+                    class="flex transition-all text-white bg-primary-600 hover:bg-primary-800 focus:ring-3 focus:ring-primary-300 font-medium rounded-lg px-5 py-2.5">
+                    Администрация
+                </a>
                 <div class="flex items-center ms-3">
-                    <div>
-                        <button 
-                            type="button"
-                            class="flex text-sm rounded-full focus:ring-4 focus:ring-secondary-300"
-                            aria-expanded="false" data-dropdown-toggle="dropdown-user"
-                        >
-                            <span class="sr-only">Open user menu</span>
-                            {% if user.avatar %}
-                                <img 
-                                    class="w-8 h-8 rounded-full"
-                                    src="{{ user.avatar.url }}" alt="user photo"
-                                >
-                            {% else %}
-                                <div 
-                                    class="w-8 h-8 rounded-full bg-secondary-100 flex items-center justify-center text-foreground"
-                                >
-                                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
-                                </div>
-                            {% endif %}
-                        </button>
-                    </div>
+                    <button 
+                        type="button"
+                        class="flex text-sm rounded-full focus:ring-4 focus:ring-secondary-300"
+                        aria-expanded="false" data-dropdown-toggle="dropdown-user"
+                    >
+                        <span class="sr-only">Open user menu</span>
+                        {% if user.avatar %}
+                            <img 
+                                class="w-8 h-8 rounded-full"
+                                src="{{ user.avatar.url }}" alt="user photo"
+                            >
+                        {% else %}
+                            <div 
+                                class="w-8 h-8 rounded-full bg-secondary-100 flex items-center justify-center text-foreground"
+                            >
+                                {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                            </div>
+                        {% endif %}
+                    </button>
+
                     <div 
                         class="z-50 hidden my-4 list-none bg-white divide-y divide-secondary-100 rounded-sm shadow-sm"
                         id="dropdown-user"
