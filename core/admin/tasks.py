@@ -128,12 +128,14 @@ class TaskAdmin(SummernoteModelAdmin):
 
 # Task type:Test admin
 # ----------------------------------------------------------------------------------------------------------------------
-# Option
+# Option Tab
 class OptionTab(SummernoteModelAdminMixin, admin.TabularInline):
     model = Option
+    fields = ('text', 'is_correct', )
     extra = 0
 
 
+# Question Admin
 @admin.register(Question)
 class QuestionAdmin(SummernoteModelAdmin):
     readonly_fields = ('task_link', )

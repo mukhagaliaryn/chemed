@@ -22,15 +22,33 @@
                 </div>
             </div>
             
-            <div class="grid gap-4">
-                {% for uw in user_written %}
-                    <div class="richtext text-left">{{ uw.written.instruction|safe }}</div>
-                    <div class="grid gap-2 p-4 text-left bg-secondary-100 rounded-xl">
-                        <span class="text-muted">Сіздің жауабыңыз</span>                        
-                        <div class="">{{ uw.answer|safe }}</div>
-                    </div>
-                {% endfor %}
-            </div>
+            {% if user_task.task.params == 'lab' %}
+                <div class="text-center">
+                    {% for uw in user_written %}
+                        <div class="richtext text-left">{{ uw.written.instruction|safe }}</div>
+
+                        <div class="flex justify-center">
+                            <a 
+                                href="{{ user_lesson.lesson.lab_link }}"
+                                target="_blank"
+                                class="flex transition-all text-white bg-primary-600 hover:bg-primary-800 focus:ring-3 focus:ring-primary-300 font-medium rounded-lg px-5 py-2.5"
+                            >
+                                Виртуалды лаборатория
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="grid gap-4">
+                    {% for uw in user_written %}
+                        <div class="richtext text-left">{{ uw.written.instruction|safe }}</div>
+                        <div class="grid gap-2 p-4 text-left bg-secondary-100 rounded-xl">
+                            <span class="text-muted">Сіздің жауабыңыз</span>                        
+                            <div class="">{{ uw.answer|safe }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
     {% else %}
         <div class="grid gap-4">
@@ -55,66 +73,84 @@
                 </div>
             </div>
 
-            <form method="post" enctype="multipart/form-data" class="grid gap-4">
-                {% csrf_token %}
-                {% for uw in user_written %}
-                    <div class="grid gap-4">
+            {% if user_task.task.params == 'lab' %}
+                <div class="text-center">
+                    {% for uw in user_written %}
                         <div class="richtext text-left">{{ uw.written.instruction|safe }}</div>
-                        {% if uw.is_submitted %}
-                            <div class="grid gap-2 text-primary-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-clock-fading-icon lucide-clock-fading mx-auto">
-                                    <path d="M12 2a10 10 0 0 1 7.38 16.75" />
-                                    <path d="M12 6v6l4 2" />
-                                    <path d="M2.5 8.875a10 10 0 0 0-.5 3" />
-                                    <path d="M2.83 16a10 10 0 0 0 2.43 3.4" />
-                                    <path d="M4.636 5.235a10 10 0 0 1 .891-.857" />
-                                    <path d="M8.644 21.42a10 10 0 0 0 7.631-.38" />
-                                </svg>
-                                <span>Оқытушының бағалауын күту</span>
-                            </div>
-                        {% else %}
-                            <div class="grid gap-2 text-left">
-                                <label class="font-medium">Жауабы</label>
-                                <textarea 
-                                    id="summernote"
-                                    name="answer_{{ uw.id }}" 
-                                    class="w-full border border-border-200 rounded-lg bg-secondary-50" 
-                                    rows="10" required
-                                >{{ uw.answer }}</textarea>
-                            </div>
 
-                            <div class="grid gap-2 text-left">
-                                <label class="font-medium">Файл (қалауыңызша):</label>
-                                <input 
-                                    type="file" 
-                                    name="file_{{ uw.id }}" 
-                                    class="block w-full text-sm border border-border-200 rounded-xl p-2"
-                                    accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.zip,.rar,.7z,.ppt,.pptx"
-                                />
+                        <div class="flex justify-center">
+                            <a 
+                                href="{{ user_lesson.lesson.lab_link }}"
+                                target="_blank"
+                                class="flex transition-all text-white bg-primary-600 hover:bg-primary-800 focus:ring-3 focus:ring-primary-300 font-medium rounded-lg px-5 py-2.5"
+                            >
+                                Виртуалды лаборатория
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <form method="post" enctype="multipart/form-data" class="grid gap-4">
+                    {% csrf_token %}
+                    {% for uw in user_written %}
+                        <div class="grid gap-4">
+                            <div class="richtext text-left">{{ uw.written.instruction|safe }}</div>
+                            {% if uw.is_submitted %}
+                                <div class="grid gap-2 text-primary-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                                        class="lucide lucide-clock-fading-icon lucide-clock-fading mx-auto">
+                                        <path d="M12 2a10 10 0 0 1 7.38 16.75" />
+                                        <path d="M12 6v6l4 2" />
+                                        <path d="M2.5 8.875a10 10 0 0 0-.5 3" />
+                                        <path d="M2.83 16a10 10 0 0 0 2.43 3.4" />
+                                        <path d="M4.636 5.235a10 10 0 0 1 .891-.857" />
+                                        <path d="M8.644 21.42a10 10 0 0 0 7.631-.38" />
+                                    </svg>
+                                    <span>Оқытушының бағалауын күту</span>
+                                </div>
+                            {% else %}
+                                <div class="grid gap-2 text-left">
+                                    <label class="font-medium">Жауабы</label>
+                                    <textarea 
+                                        id="summernote"
+                                        name="answer_{{ uw.id }}" 
+                                        class="w-full border border-border-200 rounded-lg bg-secondary-50" 
+                                        rows="10" required
+                                    >{{ uw.answer }}</textarea>
+                                </div>
 
-                                {% if uw.file %}
-                                    <span class="text-xs text-muted-foreground">
-                                        Бұрын жүктелген: <a href="{{ uw.file.url }}" class="underline" target="_blank" rel="noopener">файлды ашу</a>
-                                    </span>
-                                {% endif %}
+                                <div class="grid gap-2 text-left">
+                                    <label class="font-medium">Файл (қалауыңызша):</label>
+                                    <input 
+                                        type="file" 
+                                        name="file_{{ uw.id }}" 
+                                        class="block w-full text-sm border border-border-200 rounded-xl p-2"
+                                        accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.zip,.rar,.7z,.ppt,.pptx"
+                                    />
+
+                                    {% if uw.file %}
+                                        <span class="text-xs text-muted-foreground">
+                                            Бұрын жүктелген: <a href="{{ uw.file.url }}" class="underline" target="_blank" rel="noopener">файлды ашу</a>
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+
+                        </div>
+                        {% if not uw.is_submitted %}
+                            <div class="flex justify-center">
+                                <button
+                                    type="submit"
+                                    class="flex gap-2 justify-center items-center text-center cursor-pointer focus:outline-none text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg px-5 py-2.5"
+                                >
+                                    Тапсырманы жіберу
+                                </button>
                             </div>
                         {% endif %}
-
-                    </div>
-                    {% if not uw.is_submitted %}
-                        <div class="flex justify-center">
-                            <button
-                                type="submit"
-                                class="flex gap-2 justify-center items-center text-center cursor-pointer focus:outline-none text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg px-5 py-2.5"
-                            >
-                                Тапсырманы жіберу
-                            </button>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </form>  
+                    {% endfor %}
+                </form>  
+            {% endif %}
         </div>
     {% endif %}
 </div>

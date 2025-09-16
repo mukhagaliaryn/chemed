@@ -57,7 +57,7 @@
                                             {{ opt.text|safe }}
 
                                             {% if opt.is_correct %}
-                                                <span class="text-xs px-2 py-1 rounded-xl bg-primary-100 text-green-600">Дұрыс</span>
+                                                <span class="text-xs px-2 py-1 rounded-xl bg-green-100 text-green-600">Дұрыс</span>
                                             {% endif %}
 
                                             {% if opt in ua.options.all and not opt.is_correct %}
