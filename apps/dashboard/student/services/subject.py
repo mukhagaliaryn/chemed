@@ -19,7 +19,7 @@ def get_related_data(user_task):
         data['user_text_gaps'] = user_task.user_text_gaps.all()
 
     elif task_type == 'test':
-        data['user_answers'] = user_task.user_options.select_related('question').prefetch_related('options')
+        data['user_answers'] = user_task.user_options.select_related('question').prefetch_related('options').order_by('question__order')
 
     elif task_type == 'matching':
         data['user_matchings'] = user_task.matching_answers.all()
