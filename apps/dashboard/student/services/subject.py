@@ -101,7 +101,7 @@ def handle_written(request, user_task):
 
 # ---------------------- TEST ----------------------
 def handle_test(request, user_task):
-    questions = [ua.question for ua in user_task.user_options.all()]
+    questions = [ua.question for ua in user_task.user_options.all().order_by('order')]
     total_questions = len(questions)
     total_score = 0  # барлық сұрақтан жинайтын ұпай
 
