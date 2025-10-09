@@ -19,6 +19,7 @@ class UserChapterTab(admin.TabularInline):
 class UserLessonTab(admin.StackedInline):
     model = UserLesson
     extra = 0
+    exclude = ('started_at', 'completed_at', )
     readonly_fields = ('view_link',)
 
     def view_link(self, obj):
@@ -33,10 +34,12 @@ class UserLessonTab(admin.StackedInline):
 # UserSubject admin
 @admin.register(UserSubject)
 class UserSubjectAdmin(admin.ModelAdmin):
-    list_display = ('user', 'subject', 'rating', 'percentage', 'created_at', 'is_completed', )
+    list_display = ('user', 'subject', 'rating', 'percentage', 'is_completed', )
     list_filter = ('user', 'subject', 'is_completed', )
     search_fields = ('user__username', 'subject__title')
     inlines = (UserChapterTab, UserLessonTab, )
+
+    exclude = ('created_at', 'completed_at',)
 
 
 # UserLesson admin
@@ -68,6 +71,7 @@ class UserLessonAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'lesson__title')
     inlines = (UserTaskTab, FeedbackTab, )
     readonly_fields = ('user_subject_link',)
+    exclude = ('started_at', 'completed_at',)
 
     def user_subject_link(self, obj):
         if obj.user_subject:
