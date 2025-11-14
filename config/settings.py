@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'core',
 
     # apps...
+    'apps.main.apps.MainConfig',
     'apps.account.apps.AccountConfig',
     'apps.dashboard.student.apps.StudentConfig',
     'apps.dashboard.teacher.apps.TeacherConfig',
@@ -153,6 +154,6 @@ SILENCED_SYSTEM_CHECKS = ['security.W019']
 
 # Authentification settings
 # ----------------------------------------------------------------------------------------------------------------------
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/account/login/'
-LOGIN_URL = '/account/login/'
+LOGIN_REDIRECT_URL = 'student'
+LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'login'

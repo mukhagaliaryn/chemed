@@ -9,8 +9,9 @@ urlpatterns = [
     path('__reload__/', include('django_browser_reload.urls')),
     path('admin/', admin.site.urls),
 
+    path('', include('apps.main.urls')),
     path('account/', include('apps.account.urls')),
-    path('', include('apps.dashboard.student.urls')),
+    path('student/', include('apps.dashboard.student.urls')),
     path('teacher/', include('apps.dashboard.teacher.urls')),
 ]
 
